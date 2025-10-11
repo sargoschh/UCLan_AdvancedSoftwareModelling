@@ -1,0 +1,54 @@
+@startuml ATM_StateMachineDiagram
+title ATM Machine State Diagram (Integrated Version)
+
+' --- Startzustand ---
+[*] --> Idle : Start
+
+' --- Hauptzustände (aus Aufgabenstellung) ---
+state Idle {
+
+}
+
+state "Card Inserted" as CardInserted {
+    ' Unterzustand: Karte wird gelesen
+    state "Reading Card" as ReadingCard
+    [*] --> ReadingCard
+    ReadingCard --> [*] : Card read successfully
+}
+
+state "PIN Entered" as PinEntered {
+    ' Unterzustand: PIN wird gelesen und validiert
+    state "Reading PIN" as ReadingPin
+    state "Handling Invalid PIN" as InvalidPin
+    [*] --> ReadingPin
+    ReadingPin --> InvalidPin : Invalid PIN [attempts < 3]
+    InvalidPin --> ReadingPin : Retry PIN Entry
+    InvalidPin --> [*] : Too many invalid attempts / Card ejected
+    ReadingPin --> [*] : Valid PIN entered
+}
+
+state "Transaction in Progress" as Transaction {
+    state "Choosing Transaction" as ChoosingTransaction
+    state "Performing Transaction" as PerformingTransaction
+    [*] --> ChoosingTransaction
+    ChoosingTransaction --> PerformingTransaction : Transaction chosen
+    PerformingTransaction --> ChoosingTransaction : Another transaction
+    PerformingTransaction --> [*] : Finished transaction
+}
+
+state "Out of Service" as OutOfService {
+
+}
+
+' --- Zustandsübergänge (Pflicht laut Aufgabe) ---
+Idle --> CardInserted : InsertCard
+CardInserted --> PinEntered : EnterPIN
+PinEntered --> Transaction : Withdraw / Deposit
+Transaction --> Idle : EjectCard
+Transaction --> OutOfService : Error
+OutOfService --> Idle : MaintenanceDone
+
+' --- Endzustand ---
+Idle --> [*] : Shutdown / Session End
+
+@enduml
