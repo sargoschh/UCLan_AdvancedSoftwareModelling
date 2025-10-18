@@ -200,8 +200,8 @@ This combines:
 
 ## Further Reading
 
-* [JML Tutorial – Reasoning about recursive functions and data structures](https://www.eecs.ucf.edu/~leavens/JML/)
-* [JML Tutorial – Reasoning about recursive functions and data structures (model method version)](https://www.eecs.ucf.edu/~leavens/JML/)
+* [JML Tutorial – Reasoning about recursive functions and data structures](https://www.openjml.org/tutorial/Recursion?utm_source=chatgpt.com)
+* [JML Tutorial – Reasoning about recursive functions and data structures (model method version)](https://www.openjml.org/tutorial/Recursion-MM?utm_source=chatgpt.com)
 
 ---
 
