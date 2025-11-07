@@ -1,0 +1,15 @@
+@startuml ActivityDiagram
+start
+:Student logs in;
+:Select course;
+:System checks capacity;
+if (capacity available?) then (yes)
+  :create registration;
+  :set status = "confirmed";
+  :display confirmation;
+  stop
+else (no)
+  :display "Course Full";
+  stop
+endif
+@enduml

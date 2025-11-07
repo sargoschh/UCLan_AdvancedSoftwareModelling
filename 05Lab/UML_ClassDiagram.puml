@@ -1,0 +1,59 @@
+@startuml ClassDiagram
+
+' Classes with attributes
+class Student {
+  +id : String
+  +name : String
+  +email : String
+  --
+  +register(c : Course) : Registration
+}
+
+class Course {
+  +code : String
+  +title : String
+  +capacity : Integer
+}
+
+class Instructor {
+  +id : String
+  +name : String
+}
+
+class Registration {
+  +date : Date
+  +status : String
+}
+
+' Associations with multiplicities
+Student "1" -- "0..*" Registration : makes >
+Registration "1" -- "1" Course : for >
+Course "1" -- "0..*" Registration : has >
+Course "1" --> "1" Instructor : taughtBy >
+Student "1" o-- "0..*" Course : enrolsIn >
+
+' OCL note
+note left of Course
+OCL Constraints:
+
+1. context Course
+   inv: self.capacity > 0
+
+2. context Course
+   inv: self.registrations->size() <= self.capacity
+end note
+
+note right of Student
+3. context Student::register(c : Course) : Registration
+   pre: c.registrations->size() < c.capacity
+   post: c.registrations->includes(result)
+        and result.student = self
+        and result.course = c
+end note
+
+note right of Registration
+4. context Registration
+   inv: self.status.inSet({'pending','confirmed','cancelled'})
+end note
+
+@enduml

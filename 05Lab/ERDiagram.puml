@@ -1,0 +1,39 @@
+@startuml ERDiagram
+' Use entity keyword for ER style
+entity Student {
+  * student_id : VARCHAR
+  --
+  name : VARCHAR
+  email : VARCHAR
+}
+
+entity Course {
+  * course_code : VARCHAR
+  --
+  title : VARCHAR
+  capacity : INTEGER
+  instructor_id : VARCHAR
+}
+
+entity Instructor {
+  * instructor_id : VARCHAR
+  --
+  name : VARCHAR
+}
+
+entity Registration {
+  * registration_id : VARCHAR
+  --
+  student_id : VARCHAR
+  course_code : VARCHAR
+  date : DATE
+  status : VARCHAR
+}
+
+' Relationships with cardinalities (Crow's foot style approximation)
+Student ||--o{ Registration : "1 -> 0..*"
+Course ||--o{ Registration : "1 -> 0..*"
+Instructor ||--|| Course : "1 -> 1"
+
+' Foreign keys shown in attributes (student_id, course_code, instructor_id)
+@enduml

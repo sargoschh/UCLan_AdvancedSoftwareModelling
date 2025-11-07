@@ -1,0 +1,21 @@
+@startuml SequenceDiagram
+actor Student
+participant "RegistrationSystem" as System
+participant Course
+
+Student -> System : selectCourse(courseCode)
+activate System
+System -> Course : checkAvailability()
+activate Course
+Course --> System : available : Boolean
+deactivate Course
+
+alt available = true
+    System -> System : createRegistration(student, course)
+    note right: registration created (status = "pending")
+    System --> Student : confirmRegistration(success, details)
+else available = false
+    System --> Student : notify("Course Full")
+end
+deactivate System
+@enduml
