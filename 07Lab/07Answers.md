@@ -64,6 +64,7 @@
 ### Task 4.3 Questions
 
 1. What happens if you remove the wait() calls? 
+
     If the wait() calls are removed from the while loops in produce and consume, the threads will enter a busy-wait or spin-lock state.
 
     - If the buffer is full (count == items.length), the Producer thread will continuously spin inside the while loop, hogging CPU resources while doing no useful work.
@@ -73,6 +74,7 @@
     - This is inefficient and defeats the purpose of coordinated concurrency.
 
 2. What happens if you remove notifyAll()? 
+
     If notifyAll() is removed, threads that are waiting (via wait()) will never be woken up.
 
     - When the Producer fills the buffer, any waiting Consumers will remain sleeping forever.
