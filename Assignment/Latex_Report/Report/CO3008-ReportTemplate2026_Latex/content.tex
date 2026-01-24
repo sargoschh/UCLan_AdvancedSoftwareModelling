@@ -1,0 +1,71 @@
+% Main Content Chapters
+
+%========================================
+% CHAPTER 1: INTRODUCTION
+%========================================
+\chapter{Introduction}
+
+Purpose: Briefly introduce the real-time temperature regulation unit being developed for smart laboratory equipment.
+
+Scope: Mention that the report covers the formal specification, UML modeling, and concurrent design required to meet high-integrity safety standards.
+\newline
+
+%========================================
+% CHAPTER 2: System Requirements and Decomposition
+%========================================
+\chapter{System Requirements and Decomposition}
+
+Functional Requirements: List the core operations, such as continuous monitoring of multiple sensors and activating cooling/heating components.
+
+Non-Functional Requirements: Detail the constraints, including ±0.1C accuracy and the 1-second response time limit.
+
+Subsystem Architecture: Describe the modular breakdown into SensorInput, TemperatureController, ActuatorControl, and SystemMonitoring.
+
+Use Case Modeling: Present a UML use case diagram showing actors (e.g., Environment, System Operator) and their interactions.
+\newline
+
+%========================================
+% CHAPTER 3: UML Structural and Behavioural Modelling
+%========================================
+\chapter{UML Structural and Behavioural Modelling}
+
+Class Diagram: Provide a structural view of the system's classes, their relationships, and multiplicities.
+
+Formal Constraints (OCL): Document the Object Constraint Language (OCL) expressions for invariants, preconditions, and postconditions.
+
+Dynamic Behaviour: Include sequence or activity diagrams to model the control loop and sensor reading process.
+\newline
+
+%========================================
+% CHAPTER 4: Formal Specification and Design by Contract (DbC)
+%========================================
+\chapter{Formal Specification and Design by Contract (DbC)}
+
+Contract Specification: Provide the formal JML (Java Modeling Language) or annotated Java code for the TemperatureController.
+
+Verification Logic: Explain how Design by Contract (DbC) principles ensure correctness by preventing invalid states and software faults.
+
+Testing Support: Discuss how these specifications assist in the verification and testing process.
+\newline
+
+%========================================
+% CHAPTER 5: Concurrency and Real-Time Behaviour
+%========================================
+\chapter{Concurrency and Real-Time Behaviour}
+
+Thread Management: Model the concurrent components, such as multiple sensor threads accessing shared data.
+
+Synchronization Strategy: Identify potential race conditions or deadlocks and explain your use of mutexes, semaphores, or monitors to solve them.
+
+Implementation: Provide Java code snippets demonstrating thread synchronization or real-time scheduling.
+\newline
+
+%========================================
+% CHAPTER 6: Conclusion and Evaluation
+%========================================
+\chapter{Conclusion and Evaluation}
+
+Summary: Summarize how the formal models and specifications support the reliability and performance goals of the system.
+
+Technique Evaluation: Briefly evaluate the software development techniques used (UML, OCL, JML, and Java concurrency) in terms of their effectiveness for high-integrity systems.
+\newline
