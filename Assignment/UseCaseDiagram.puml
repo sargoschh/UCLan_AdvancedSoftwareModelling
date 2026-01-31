@@ -1,0 +1,28 @@
+@startuml UseCaseDiagram
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Temperature Sensor" as Sensor << Hardware >>
+actor "Heating/Cooling Unit" as Actuator << Hardware >>
+actor "System Administrator" as Admin << Human >>
+
+rectangle "Temperature Regulation System" {
+    usecase "Monitor Temperature" as UC1
+    usecase "Compare Reading to Target" as UC2
+    usecase "Adjust Temperature" as UC3
+    usecase "Log System Performance" as UC4
+    usecase "Trigger Threshold Alert" as UC5
+    
+    ' Logical Dependencies
+    UC1 ..> UC2 : <<include>>
+    UC1 ..> UC4 : <<include>> 
+    UC2 ..> UC3 : <<extend>>
+    UC2 ..> UC5 : <<extend>>
+}
+
+Sensor --> UC1
+UC3 --> Actuator
+UC5 -- Admin
+UC4 -- Admin
+
+@enduml
