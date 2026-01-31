@@ -6,6 +6,14 @@ public class ActuatorControl {
       @                  status.equals("COOLING");
       @*/
 
+    /*@ public pure behavior
+      @   requires true;
+      @   ensures \result != null;
+      @*/
+    public String getCurrentActuatorControlStatus() {
+        return status;
+    }
+
     /*@ public normal_behavior
       @   assignable status;
       @   ensures status.equals("HEATING");
@@ -33,5 +41,14 @@ public class ActuatorControl {
     /*@ public pure behavior
       @   ensures \result == status.equals("HEATING");
       @*/
-    public synchronized boolean isHeating() { return status.equals("HEATING"); }
+    public synchronized boolean isHeating() {
+        return status.equals("HEATING");
+    }
+
+    /*@ public pure behavior
+      @   ensures \result == status.equals("COOLING");
+      @*/
+    public synchronized boolean isCooling() {
+        return status.equals("COOLING");
+    }
 }

@@ -6,13 +6,19 @@ public class SensorInput extends Thread {
 
     /*@ public normal_behavior
       @   requires controller != null && id >= 0;
-      @   ensures this.controller == controller && this.sensorId == id;
+      @   ensures this.controller == controller;
+      @   ensures this.sensorId == id;
       @*/
     public SensorInput(TemperatureController controller, int id) {
         this.controller = controller;
         this.sensorId = id;
     }
 
+    /*@ public normal_behavior
+      @   assignable \nothing;
+      @   // Logic: The thread continues to process readings until interrupted
+      @   ensures !running;
+      @*/
     @Override
     public void run() {
         while (running) {
@@ -23,12 +29,24 @@ public class SensorInput extends Thread {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                running = false;
+                this.interrupt();
             }
         }
     }
 
+    /*@ also
+      @  public normal_behavior
+      @    assignable running;
+      @    ensures !running;
+      @*/
+    @Override
+    public void interrupt() {
+        super.interrupt();
+        running = false;
+    }
+
     /*@ public normal_behavior
+      @   assignable \nothing;
       @   ensures \result >= -50.0 && \result <= 100.0;
       @*/
     private double readHardwareSensor() {
