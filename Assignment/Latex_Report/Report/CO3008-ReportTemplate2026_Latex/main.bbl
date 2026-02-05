@@ -1,3 +1,45 @@
 \begin{thebibliography}{xx}
 
+\harvarditem{Algarni \harvardand\ Magel}{2018}{Algarni2018}
+Algarni, A. \harvardand\ Magel, K.  \harvardyearleft 2018\harvardyearright ,
+  `Toward design-by-contract based generative tool for object-oriented system',
+  {\em Proceedings of the IEEE International Conference on Software Engineering
+  and Service Sciences, ICSESS} {\bf 2018-November},~168--173.
+\newline\harvardurl{https://ieeexplore.ieee.org/document/8663719}
+
+\harvarditem{Brizhinev \harvardand\ Goré}{2018}{Brizhinev2018}
+Brizhinev, D. \harvardand\ Goré, R.  \harvardyearleft 2018\harvardyearright ,
+  `A case study in formal verification of a java program'.
+\newline\harvardurl{http://arxiv.org/abs/1809.03162}
+
+\harvarditem{Hamie}{2006}{Hamie2006}
+Hamie, A.  \harvardyearleft 2006\harvardyearright , `On the relationship
+  between the object constraint language (ocl) and the java modeling language
+  (jml)', {\em Parallel and Distributed Computing, Applications and
+  Technologies, PDCAT Proceedings} pp.~411--414.
+\newline\harvardurl{https://ieeexplore.ieee.org/document/4032217}
+
+\harvarditem{Meso \harvardand\ Jain}{2006}{meso2006agile}
+Meso, P. \harvardand\ Jain, R.  \harvardyearleft 2006\harvardyearright , `Agile
+  software development: Adaptive systems principles and best practices.', {\em
+  Information systems management} {\bf 23}(3),~Chapter 8.
+
+\harvarditem[Tang et~al.]{Tang, Zhou, Bu, Ma \harvardand\
+  Zhong}{2024}{Tang2024}
+Tang, Q., Zhou, Z., Bu, Z., Ma, L. \harvardand\ Zhong, Y.  \harvardyearleft
+  2024\harvardyearright , `Formal specification and verification of api
+  security based on design by contract', {\em 2024 IEEE 6th International
+  Conference on Power, Intelligent Computing and Systems, ICPICS 2024}
+  pp.~929--933.
+\newline\harvardurl{https://ieeexplore.ieee.org/document/10796383}
+
+\harvarditem[Welc et~al.]{Welc, Hosking \harvardand\
+  Jagannathan}{2006}{Welc2006}
+Welc, A., Hosking, A.~L. \harvardand\ Jagannathan, S.  \harvardyearleft
+  2006\harvardyearright , `Transparently reconciling transactions with locking
+  for java synchronization', {\em Lecture Notes in Computer Science (including
+  subseries Lecture Notes in Artificial Intelligence and Lecture Notes in
+  Bioinformatics)} {\bf 4067 LNCS},~148--173.
+\newline\harvardurl{https://link.springer.com/chapter/10.1007/11785477-8}
+
 \end{thebibliography}

@@ -1,0 +1,38 @@
+@startuml
+left to right direction
+header Actuator State Machine
+
+[*] --> IDLE : Initialized
+
+state IDLE {
+  IDLE : Entry / status = "IDLE"
+}
+
+state HEATING {
+  HEATING : Entry / status = "HEATING"
+}
+
+state COOLING {
+  COOLING : Entry / status = "COOLING"
+}
+
+' Transitions logic from TemperatureController.processReading()
+IDLE --> HEATING : [temp < targetMin] / activateHeating()
+IDLE --> COOLING : [temp > targetMax] / activateCooling()
+
+HEATING --> IDLE : [temp >= targetMin] / setIdle()
+HEATING --> COOLING : [temp > targetMax] / activateCooling()
+
+COOLING --> IDLE : [temp <= targetMax] / setIdle()
+COOLING --> HEATING : [temp < targetMin] / activateHeating()
+
+' Constraints from JML invariants
+note top of IDLE
+  <b>Invariant:</b>
+  status == "IDLE" || 
+  status == "HEATING" || 
+  status == "COOLING"
+ 
+end note
+
+@enduml

@@ -5,9 +5,7 @@
 %========================================
 \chapter{Introduction}
 
-Purpose: Briefly introduce the real-time temperature regulation unit being developed for smart laboratory equipment.
-
-Scope: Mention that the report covers the formal specification, UML modeling, and concurrent design required to meet high-integrity safety standards.
+The real-time temperature regulation unit for the smart laboratory equipment ensures the stability of temperatures through the monitoring of sensors and the control of hardware devices for heating and cooling. This project, which implements high integrity safety standards, incorporates the formal specification, UML modeling, and concurrency techniques for the reliable software implementation. The following report outlines the requirements, decomposition, and the application of formal contracts for the prevention of faults in a multi-threaded environment.
 \newline
 
 %========================================
@@ -15,13 +13,91 @@ Scope: Mention that the report covers the formal specification, UML modeling, an
 %========================================
 \chapter{System Requirements and Decomposition}
 
-Functional Requirements: List the core operations, such as continuous monitoring of multiple sensors and activating cooling/heating components.
+\section{Functional and Non-Functional Requirements}
 
-Non-Functional Requirements: Detail the constraints, including ±0.1C accuracy and the 1-second response time limit.
+The Temperature Regulation Unit is planned for use in a high-integrity laboratory setting and therefore requires a set of requirements to be met in order to satisfy safety and determinable requirements. These Requirements are listed in Tables \ref{tbl:functionalRequirements} and \ref{tbl:nonFunctionalRequirements}.
 
-Subsystem Architecture: Describe the modular breakdown into SensorInput, TemperatureController, ActuatorControl, and SystemMonitoring.
+\begin{longtable}[h]{c||p{14cm}}  %[!h] steht für here, damit Tabelle an dieser Stelle eingefügt wird, ! für erzwungen
+	\textbf{ID} & \textbf{Functional Requirement} \\
+	\hline
+	\hline
+	\textbf{FR1} & The system must read temperature data from hardware sensors, with values from -50.0°C to 100.0°C.  \\
+	\hline
+	\textbf{FR2} & The system must be capable of processing readings from multiple sensors simultaneously using concurrent threads.  \\
+	\hline
+	\textbf{FR3} & If the temperature falls below the minimum target, the system must activate the heating unit.  \\
+	\hline
+	\textbf{FR4} & If the temperature exceeds the maximum target, the system must activate the cooling unit.  \\
+	\hline
+	\textbf{FR5} & If the temperature is within the target range, the system must set the actuator to idle.  \\
+	\hline
+	\textbf{FR6} & The system must allow users to set a minimum and maximum target temperature, ensuring the minimum is always less than the maximum.  \\
+	\hline
+	\textbf{FR7} & Every processed reading must be logged, including the sensor ID, current temperature, and the state of the actuator.  \\
+	\hline
+	\textbf{FR8} & The system must trigger a warning if the temperature is outside the target range but within safe limits (0.0°C to 40.0°C).  \\
+	\hline
+	\textbf{FR9} & The system must trigger a critical alert if the temperature falls below 0.0°C or rises above 40.0°C.  \\
+	\hline
+	\caption{Functional Requirements for the Temperature Regulation Unit'}
+	\label{tbl:functionalRequirements}
+\end{longtable} 
 
-Use Case Modeling: Present a UML use case diagram showing actors (e.g., Environment, System Operator) and their interactions.
+The functional requirements (FR) in Table \ref{tbl:functionalRequirements} focus on the primary logic of the system. This includes data acquisition within a specific temperature range (FR1), the implementation of a three-stage control loop (FR3/FR4/FR5 - HEATING, COOLING, IDLE) and the interface for administrative configuration (FR6). The system has also been designed to include multi-level alerts (warning and critical) to address temperature deviation issues before hardware failure occurs (FR7/FR8/FR9).
+
+\begin{longtable}[h]{c||p{14cm}}  %[!h] steht für here, damit Tabelle an dieser Stelle eingefügt wird, ! für erzwungen
+	\textbf{ID} & \textbf{Non-Functional Requirement} \\
+	\hline
+	\hline
+	\textbf{NFR1} & The system must ensure data integrity when multiple sensors update the actuator or controller state simultaneously using synchronization.  \\
+	\hline
+	\textbf{NFR2} & The actuator status must only ever be "IDLE", "HEATING", or "COOLING".  \\
+	\hline
+	\textbf{NFR3} & The target minimum temperature must always be greater than 0.0°C and the target maximum must be less than 50.0°C.  \\
+	\hline
+	\textbf{NFR4} & Sensor threads must collect data and update the controller at a regular frequency within one second.  \\
+	\hline
+	\textbf{NFR5} & The system must handle thread interruptions gracefully by updating the running state and terminating the sensor loop.  \\
+	\hline
+	\textbf{NFR6} & The code must adhere to formal specifications (JML) to allow for formal verification of its behavior and state.  \\
+	\hline
+	\caption{Non-Functional Requirements for the Temperature Regulation Unit'}
+	\label{tbl:nonFunctionalRequirements}
+\end{longtable} 
+
+The non-functional requirements (NFR) in Table \ref{tbl:nonFunctionalRequirements} focus on fast response times and system reliability. Since the system processes many tasks simultaneously, data protection (NFR1) and control of parallel processes (NFR5) are crucial to prevent errors caused by simultaneous access. The use of Java Modeling Language (NFR6) also ensures that the software can be verified. This helps to ensure complete compliance with the strict security requirements specified in the task description.
+\newline
+
+\section{System Decomposition}
+
+In order to maintain a clean and modular system, the system is broken down into four main modules:
+
+\begin{itemize}
+	\item The \textbf{SensorInput} encapsulates the hardware abstraction layer for temperature sensors. It manages multiple threads to poll data at 500ms intervals (within one second), ensuring that the \textbf{TemperatureController} is constantly fed a stream of normalized data.
+	\item The \textbf{TemperatureController} is the "brain" of the system. It contains the set-point algorithm and compares the input data against the "Min<Max" values. It is responsible for making the logical decision to change the system state.
+	\item The \textbf{ActuatorControl} manages the hardware interface for heating and cooling actuators. It implements the logic that the actuator can only be in one of three discrete states (HEATING, COOLING, or IDLE), preventing conflicting hardware commands.
+	\item The \textbf{SystemMonitoring} is a secondary high-integrity module that manages persistent logging and the asynchronous generation of alerts. By separating this concern from the main control loop, the system ensures that logging does not impact real-time temperature control.
+\end{itemize}
+
+\section{Use Case Analysis}
+
+The UML Use Case Diagram provided in \ref{fig:useCaseDiagram} describes the interaction with the major actors involved in the system: Temperature Sensor (Input), System Administrator (Configuration), and Actuator Hardware (Output).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1.0\textwidth]{figures/UseCaseDiagram.png}
+	\caption{Temperature Regulating Unit - Use Case Diagram}
+	\label{fig:useCaseDiagram}
+\end{figure}
+
+The main use case is Process Sensor Reading, which includes all the included use cases like Adjust Actuator State and Log System Status. This indicates that all changes made to the sensor data will initiate a series of actions that will either adjust hardware or record system status. However, it also includes the extend relationship with Trigger Temperature Alert, which indicates that alerts are only sent when certain safety invariant violations occur.
+\newline
+
+\section{Justification for Reliability and Performance}
+
+The use of a modular system design directly contributes to system reliability since hardware failures are contained. In case there is a problem with \textbf{ActuatorControl}, \textbf{SystemMonitoring} can still operate and send out a critical alert.
+
+In terms of system performance, concurrent threads enable the system to remain responsive even if there are many sensors involved. Design by Contract (DbC) principles are applied through NFR3 and NFR6 to ensure that the system fails safely instead of continuing to operate on false data, which is necessary in high-reliability electronic systems.
 \newline
 
 %========================================
@@ -29,23 +105,187 @@ Use Case Modeling: Present a UML use case diagram showing actors (e.g., Environm
 %========================================
 \chapter{UML Structural and Behavioural Modelling}
 
-Class Diagram: Provide a structural view of the system's classes, their relationships, and multiplicities.
+\section{Structural Modelling and Architectural Justification}
 
-Formal Constraints (OCL): Document the Object Constraint Language (OCL) expressions for invariants, preconditions, and postconditions.
+To ensure structural integrity, the system uses a decoupled architecture (see Fig. \ref{fig:classDiagram}). The strict separation between the hardware level and the logic level fulfills the principle of single responsibility (\cite{meso2006agile}). This modular structure is crucial for the formal verification of the system.
 
-Dynamic Behaviour: Include sequence or activity diagrams to model the control loop and sensor reading process.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1.0\textwidth]{figures/ClassDiagram.png}
+	\caption{Temperature Regulating Unit - Class Diagram}
+	\label{fig:classDiagram}
+\end{figure}
+
+The \textbf{SensorInput} class manages the lifecycle of data acquisition from sensors. It has a runtime boolean to enable proper shutdown and a sensor ID to uniquely differentiate multiple simultaneous data streams. The assignment "reports to" to the controller is done via a "1..* to 1" relationship, ensuring that all data is centralised for processing.
+The \textbf{TemperatureController} class (the "Mediator" in this pattern) contains the target set-points (targetMin, targetMax) as private attributes to prevent external tampering. It´s primary method, \textit{processReading}, is the critical section of the software.
+The module \textbf{ActuatorControl} implements the "State" pattern in an strict manner. By defining the state of the system as a String in a strict manner (IDLE, HEATING, COOLING), it avoids getting into an "undefined" state, which would cause damage to the hardware. The state of the system could be moved to a separate ENUM class, but since the code for this report is only for demonstration purposes, the states are used as static strings.
+The \textbf{SystemMonitoring} class acts as an observability layer. The methods in this class, such as \textit{triggerAlert} and \textit{triggerWarning}, are separated from each other in a functional sense to ensure that in case of a failure in the logging mechanism, it does not affect the temperature regulation process in any way.
 \newline
+
+\section{Formal Specification with Object Constraint Language (OCL)}
+
+In a high-integrity system, it is not possible to rely on a simple description of a system. OCL is used to ensure mathematical certainty about the state of a system (\citep{Hamie2006}).
+
+\subsection{System Invariants}
+
+Invariants define the "Safe State" of the equipment. If these are violated, the system is considered to be in a failed state.
+
+\textbf{Context: TemperatureController}
+
+\begin{itemize}
+	\item inv TargetIntegrity: self.targetMin < self.targetMax
+	\item inv SafeBounds: self.targetMin > 0.0 and self.targetMax < 50.0
+\end{itemize}
+
+\textbf{Context: ActuatorControl}
+\begin{itemize}
+	\item inv ValidStatus: Set{'IDLE', 'HEATING', 'COOLING'}->includes(self.status)
+\end{itemize}
+
+\subsection{Operational Contracts (Pre/Post-conditions)}
+
+These contracts ensure that the processReading method behaves predictably regardless of the input frequency.
+
+\textbf{Context: TemperatureController::processReading(sensorId: int, temp: double)}
+\begin{itemize}
+	\item Precondition: 
+	
+	\textit{!Double.isNaN(temp) and}
+	
+	\textit{temp >= -50.0 and} 
+	
+	\textit{temp <= 100.0}
+	
+	This ensures that the system does not attempt to process invalid data or "out-of-bounds" sensor noise.
+	\item Postcondition: 
+	
+	\textit{(temp < targetMin implies actuator.status = 'HEATING') and} 
+	
+	\textit{(temp > targetMax implies actuator.status = 'COOLING') and}
+	
+	\textit{(temp >= targetMin and temp <= targetMax implies actuator.status = 'IDLE')}
+	
+	This guarantees that after the method executes, the physical hardware state matches the logical requirements.
+\end{itemize}
+
+\section{Behavioural Analysis: Control Loop and Concurrency}
+
+The system’s dynamic behaviour is modelled to highlight thread safety and responsiveness.
+
+The activity diagram in Fig. \ref{fig:activityDiagram} shows a sequence from data acquisition to system monitoring. An important point is the conditional branch for activating the actuator. Instead of sending meaningless ‘ON’ signals to the hardware, the system checks whether the actuator is already HEATING. This minimizes hardware wear and reduces bus usage for the embedded system. The lower part shows the \textbf{SystemMonitoring} block, which performs two checks: one for target thresholds and one for critical safety limits (0°C to 40°C).
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figures/ActivityDiagram.png}
+	\caption{Temperature Regulating Unit - Activity Diagram}
+	\label{fig:activityDiagram}
+\end{figure}
+
+The Sequence Diagram in Fig. \ref{fig:sequenceDiagram} represents a time-based view of system execution. As there are several \textbf{SensorInput} objects running on separate threads, \textit{processReading} is synchronised. As shown in the figure, when sensor1 enters the controller, it "locks" the method call (the blue activation bar represents this lock state). This guarantees that the state of \textbf{ActuatorControl} is checked and updated atomically. Finally, the \textit{status}-String is retrieved and passed to the monitor. This "Read-Process-Act-Log" pattern guarantees that every single pulse from sensors is accounted for and documented, meeting reliability requirements for smart lab equipment.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/SequenceDiagram.png}
+	\caption{Temperature Regulating Unit - Sequence Diagram}
+	\label{fig:sequenceDiagram}
+\end{figure}
 
 %========================================
 % CHAPTER 4: Formal Specification and Design by Contract (DbC)
 %========================================
 \chapter{Formal Specification and Design by Contract (DbC)}
 
-Contract Specification: Provide the formal JML (Java Modeling Language) or annotated Java code for the TemperatureController.
+\section{Principles of Design by Contract (DbC) in High-Integrity Systems}
 
-Verification Logic: Explain how Design by Contract (DbC) principles ensure correctness by preventing invalid states and software faults.
+"Design by Contract" (DbC), as a methodology, is an essential technique in the field of embedded software engineering (\citep{Algarni2018} \& \citep{Tang2024}), especially when implementing high-integrity electronic devices, such as temperature control systems. The idea is to develop software components that interact with one another based on a contract. The contract is embedded, in the form of a comment, in the source code by the use of "Java Modeling Language" (JML) (\citep{Hamie2006}).
+The reason for doing this is to ensure correctness, which is a "fail-fast" approach. Therefore, if the function is not satisfied with the preconditions, the function will not execute, and the program will not go into an inconsistent state. The postcondition, on the other hand, is a warranty given by the supplier, which is a "promise" of a correct state. In the case of the \textbf{TemperatureController}, DbC prevents logic errors (such as activating both heating and cooling at the same time) that could result in hardware failure or safety risks in a laboratory environment.
+\newline
 
-Testing Support: Discuss how these specifications assist in the verification and testing process.
+\section{Formal Specification and Implementation}
+
+The following implementation of the \textbf{TemperatureController} and \textbf{ActuatorControl} classes demonstrate the application of JML to enforce system safety and operational integrity.
+\newline
+
+\subsection{Core Invariants and Safety Bounds}
+
+The system maintains strict invariants to define the "Safe State." These must hold true at every stage of the object's lifecycle.
+\newline
+
+\begin{lstlisting}[language=Java, caption=Invariants and Safety Bounds in the TemperatureController Class, label=TemperatureControllerClass]
+	public class TemperatureController {
+		/*@ public invariant targetMin < targetMax; @*/
+		/*@ public invariant targetMin > 0.0 && targetMax < 50.0; @*/
+		private double targetMin = 18.0;
+		private double targetMax = 24.0;
+		// ...
+	}
+\end{lstlisting}
+
+The first invariant in Listing \ref{TemperatureControllerClass} ensures that the thermal range is logically correct, while the second ensures that the laboratory equipment is operated within the physical safety limits (0.0 °C to 50.0 °C). Furthermore, the \textbf{ActuatorControl} class (Listing \ref{ActuatorControlClass}) restricts the hardware status to a defined set of valid strings:
+\pagebreak
+
+\begin{lstlisting}[language=Java, caption=Invariants and Safety Bounds in the ActuatorControl Class, label=ActuatorControlClass]
+	/*@ public invariant status.equals("IDLE") || 
+	@                  status.equals("HEATING") || 
+	@                  status.equals("COOLING"); 
+	@*/
+\end{lstlisting}
+
+
+\subsection{Contract-Based Method Specifications}
+
+The \textit{processReading} method (Listing \ref{TemperatureControllerClassSpecifications}) is the key control point for the software. The contract for this method guarantees proper input data and correct actuator state according to logic requirements upon completion.
+\newline
+
+\begin{lstlisting}[language=Java, caption=Contract-Based Method Specifications in the TemperatureController Class, label=TemperatureControllerClassSpecifications]
+	/*@ public normal_behavior
+	@   requires !Double.isNaN(temp) && temp > -50.0 && temp < 100.0;
+	@   assignable \nothing;
+	@   ensures (temp < targetMin) ==> actuator.isHeating();
+	@   ensures (temp > targetMax) ==> actuator.isCooling();
+	@   ensures (temp >= targetMin && temp <= targetMax) ==> 
+	@           (!actuator.isHeating() && !actuator.isCooling());
+	@*/
+	public synchronized void processReading(int sensorId, double temp) {
+		if (temp < targetMin) {
+			if(!actuator.isHeating()) { 
+				actuator.activateHeating(); 
+			}
+		} else if (temp > targetMax) {
+			if(!actuator.isCooling()) { 
+				actuator.activateCooling(); 
+			}
+		} else {
+			actuator.setIdle();
+		}
+		monitor.logReading(sensorId, targetMin, targetMax, temp, actuator.getCurrentActuatorControlStatus());
+	}
+\end{lstlisting}
+
+The use of "==>" (logical implication) in the postconditions offers a mathematical guarantee for correctness. If the temperature is below the minimum, the actuator must be in the heating state after the execution of the method. The use of the assignable \textit{nothing} clause is also important for high-integrity systems, as it states that there are no side effects on the class's fields after executing the method.
+\newline
+
+\section{Supporting Verification and Testing}
+
+Formal specifications add greatly to the quality assurance process by changing the focus from "testing for bugs" to "proving correctness."
+
+OpenJML or KeY can use these formal JML specifications for static verification (\cite{Brizhinev2018}). These tools can verify mathematically that the postconditions will be fulfilled for all preconditions, without actually executing the code. This is critical for the reliability of the laboratory unit because it points out the edge conditions, such as floating-point precision, that could be overlooked in the course of functional testing.
+
+In the development stage, JML contracts can be compiled to check for errors at runtime. If the \textbf{SensorInput} thread is given a NaN value or a temperature above 100°C, a JML exception is thrown immediately. This ensures that such an error is not forwarded to the \textbf{ActuatorControl} hardware interface, which could result in physical damage to the device.
+
+The contracts provide a clear outline for unit testing. Each postcondition explicitly states what output is expected for a given input. This makes it easier to generate tests automatically. For example, in the \textit{setTargetMinTemp} method, there is a precondition "requires newTemp < targetMax". Testing can be performed on specific input values, such as attempting to set targetMin equal to targetMax, to ensure that such an invalid condition is rejected by the system and therefore maintaining system integrity.
+\newline
+
+\section{Prevention of Software Faults}
+
+By defining the state space and transitions, JML systematically minimises potential software errors:
+
+\begin{itemize}
+	\item \textbf{Race conditions}: Synchronised blocks in combination with JML invariants ensure that the condition "targetMin < targetMax" is always maintained, even during parallel sensor accesses.
+	\item \textbf{Logic errors}: Complete postconditions for \textit{processReading} cover all possible scenarios. This prevents undefined states of the actuator and increases reliability.
+\end{itemize}
+
+The software therefore meets the strict safety requirements for use in laboratory environments.
 \newline
 
 %========================================
@@ -53,11 +293,107 @@ Testing Support: Discuss how these specifications assist in the verification and
 %========================================
 \chapter{Concurrency and Real-Time Behaviour}
 
-Thread Management: Model the concurrent components, such as multiple sensor threads accessing shared data.
+\section{Modelling Concurrent Components and Resource Competition}
 
-Synchronization Strategy: Identify potential race conditions or deadlocks and explain your use of mutexes, semaphores, or monitors to solve them.
+The architecture of the \textbf{TemperatureControl} system has been designed as a multi-threaded real-time application, which is capable of processing simultaneous data inputs from various hardware. As indicated in the concurrency diagram in Fig. \ref{fig:concurrencyDiagram}, the architecture uses a "shared controller lock" approach in order to manage concurrent access to the system's resources. The major entities involved in concurrent processing include \textbf{SensorInput} threads and the \textbf{TemperatureController} class.
 
-Implementation: Provide Java code snippets demonstrating thread synchronization or real-time scheduling.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/ConcurrencyDiagram.png}
+	\caption{Temperature Regulating Unit - Concurrency Diagram}
+	\label{fig:concurrencyDiagram}
+\end{figure}
+
+Each \textbf{SensorInput} class extends the Thread class and operates in independent execution cycles. This allows for scalability, as additional threads for sensors can be added without affecting the main application thread. These threads represent the active entities involved in parallel processing and accessing shared resources within the \textbf{TemperatureController} and \textbf{ActuatorControl} modules. As multiple sensors are involved in sending asynchronous data in a multi-hardware environment, it is important for the system to handle concurrent execution paths, where multiple threads may attempt to execute the processing logic at a given millisecond.
+\newline
+
+\section{Synchronisation and State Management}
+
+For the high-integrity requirements of laboratory equipment to be met, the system needs to have deterministic state transition management. The State Machine Diagram (Fig. \ref{fig:stateDiagram}) for the actuator has three mutually exclusive states: IDLE, HEATING, and COOLING. The transitions between the states are protected by temperature thresholds, specifically where "temp < targetMin" or "temp > targetMax".
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1.0\textwidth]{figures/StateDiagram.png}
+	\caption{Temperature Regulating Unit - State Diagram}
+	\label{fig:stateDiagram}
+\end{figure}
+
+Synchronization is implemented by the Monitor Pattern. In Java, this is done by the synchronized keyword, which is a mutual exclusion (mutex) lock (\citep{Welc2006}). As illustrated in the Concurrency Diagram (Fig. \ref{fig:concurrencyDiagram}), when a \textbf{SensorInput} thread calls \textit{processReading()}, it needs to lock the monitor for the \textbf{TemperatureController} object. If another thread (Sensor 2, for instance) tries to call the same method while Sensor 1 has the monitor locked, the other thread is placed in a BLOCKED state. This guarantees that the system state of the controller, including the decision logic for temperatures and the actuator is atomic and consistent.
+\newline
+
+\section{Identification of Concurrency Issues and Technical Solutions}
+
+In a multi-threaded embedded system, several critical concurrency issues must be addressed to ensure software correctness and safety.
+\newline
+
+\subsection{Race Conditions and Atomicity}
+
+A race condition occurs when multiple threads attempt to modify shared data simultaneously, leading to unpredictable results. In this system, if two sensors measure different temperatures at the exact same time (one suggesting a need for heating and the other suggesting cooling) they might attempt to set the actuator to conflicting states.
+The solution is that the system prevents race conditions by marking the \textit{processReading()} method as synchronized. This ensures that the evaluation of the temperature logic and the subsequent hardware state update are performed as a single, atomic operation.
+\newline
+
+\subsection{Non-Determinism and CPU Overload}
+
+For real-time systems, it is important that the system is deterministic, i.e., the system should respond to a set of input stimuli in a predictable time frame. Otherwise, there is a possibility that all the Sensor Input threads might consume a large number of CPU cycles, resulting in "starvation" of other critical system processes.
+To avoid this possibility, each Sensor Input thread contains a sleep cycle of 500ms in its \textit{run()} loop, thereby providing a sampling frequency for the system while maintaining low power consumption for embedded systems.
+\newline
+
+\subsection{Data Visibility and Volatile Memory}
+
+The shared variables, like the running flag in \textbf{SensorInput}, need to be accessible to all threads for a clean shutdown of the system. In most JVMs, variables are cached by threads, which results in a situation where a thread never "notices" that the running flag has been turned off by another thread.
+To prevent this the running variable is declared volatile. This ensures that any thread accessing the variable sees the latest value written by the \textit{interrupt()} method, which causes the thread to terminate immediately.
+\newline
+
+\section{Real-Time Scheduling and Thread Management}
+
+The following Java code snippets demonstrate the practical implementation of these concurrency and real-time principles.
+\newline
+
+\subsection{Thread Lifecycle and Periodic Execution}
+
+The \textbf{SensorInput} class (Listing \ref{SensorInputRun}) illustrates how independent execution units are handled, as well as how periodic scheduling is implemented for predictable data acquisition.
+\newline
+
+\begin{lstlisting}[language=Java, caption=Real-Time Scheduling and Thread Management in the SensorInput Class, label=SensorInputRun]
+	public void run() {
+		while (running) {
+			// Acquisition of hardware data
+			double temp = readHardwareSensor(); 
+			
+			// Concurrent access to the shared controller
+			controller.processReading(sensorId, temp); 
+			
+			try {
+				// Real-time scheduling: periodic sampling every 500ms
+				Thread.sleep(500); 
+			} catch (InterruptedException e) {
+				this.interrupt(); // Graceful handling of thread interruption
+			}
+		}
+	}
+\end{lstlisting}
+
+\subsection{Thread Safety Implementation}
+
+The \textbf{ActuatorControl} and \textbf{TemperatureController} classes (Listing \ref{ActuatorControlClassSynchronized}) use method-level synchronization to maintain the integrity of the actuator status. 
+\pagebreak
+
+\begin{lstlisting}[language=Java, caption=Thread Safety Implementation in the ActuatorControl Class, label=ActuatorControlClassSynchronized]
+	public class ActuatorControl {
+		private String status = "IDLE";
+		
+		// Synchronized method acts as a mutex lock on the 'status' variable
+		public synchronized void activateHeating() {
+			status = "HEATING";
+		}
+		
+		public synchronized boolean isHeating() {
+			return status.equals("HEATING");
+		}
+	}
+\end{lstlisting}
+
+This ensures that the Actuator State Machine is in a valid state regardless of how many concurrent sensor inputs are processed. By using these synchronization primitives, it is ensured that transitions between HEATING, COOLING, and IDLE are never interrupted and therefore preventing invalid hardware configurations. The use of volatile flags for control, synchronized code for mutual exclusion, and Thread.sleep for periodic scheduling provides a robust, high-integrity environment for real-time temperature control.
 \newline
 
 %========================================
@@ -65,7 +401,5 @@ Implementation: Provide Java code snippets demonstrating thread synchronization 
 %========================================
 \chapter{Conclusion and Evaluation}
 
-Summary: Summarize how the formal models and specifications support the reliability and performance goals of the system.
-
-Technique Evaluation: Briefly evaluate the software development techniques used (UML, OCL, JML, and Java concurrency) in terms of their effectiveness for high-integrity systems.
+The combination of formal models and concurrent design meets the reliability and performance requirements for laboratory electronics. The modular decomposition guarantees that hardware failures are isolated from each other, and \textbf{SystemMonitoring} offers autonomous safety notifications. UML and OCL ensure mathematical certainty for safe operation, and JML contracts ensure that "fail-fast" logic is used to prevent false information from damaging hardware. Finally, Java's synchronization primitives and volatile variables ensure that multiple sensor threads are managed properly, ensuring that the system remains deterministic and thread-safe. All of these methodologies ensure that the software meets the integrity requirements.
 \newline

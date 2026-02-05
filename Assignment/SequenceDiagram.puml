@@ -1,0 +1,46 @@
+@startuml
+autonumber
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+actor "Hardware" as HW
+participant "sensor1:SensorInput" as SI
+participant "controller:TemperatureController" as TC
+participant "actuator:ActuatorControl" as AC
+participant "monitor:SystemMonitoring" as SM
+
+activate SI
+SI -> HW : readHardwareSensor()
+activate HW
+HW --> SI : temp value
+deactivate HW
+
+' Fixed: Removed the stereotype from the activation command
+SI -> TC : processReading(sensorId, temp)
+activate TC #LightBlue 
+
+    note right of TC: Method is synchronized
+
+    alt temp < targetMin
+        TC -> AC : isHeating()
+        AC --> TC : false
+        TC -> AC : activateHeating()
+    else temp > targetMax
+        TC -> AC : isCooling()
+        AC --> TC : false
+        TC -> AC : activateCooling()
+    else within range
+        TC -> AC : setIdle()
+    end
+
+    TC -> AC : getCurrentActuatorControlStatus()
+    AC --> TC : statusString
+    
+    TC -> SM : logReading(id, min, max, temp, statusString)
+    activate SM
+    SM --> TC
+    deactivate SM
+
+TC --> SI
+deactivate TC
+@enduml

@@ -1,0 +1,28 @@
+@startuml ActivityDiagram
+start
+:Receive sensorId and temp;
+note right: TemperatureController.java
+
+if (temp < targetMin?) then (yes)
+  if (actuator already HEATING?) then (no)
+    :Call activateHeating();
+  endif
+else if (temp > targetMax?) then (yes)
+  if (actuator already COOLING?) then (no)
+    :Call activateCooling();
+  endif
+else (no)
+  :Call setIdle();
+endif
+
+:Call logReading();
+partition "SystemMonitoring" {
+    :Print log to console;
+    if (temp < 0.0 OR temp > 40.0?) then (yes)
+        :triggerAlert();
+    else if (temp outside [targetMin, targetMax]?) then (yes)
+        :triggerWarning();
+    endif
+}
+stop
+@enduml

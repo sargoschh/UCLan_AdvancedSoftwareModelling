@@ -1,0 +1,76 @@
+@startuml ClassDiagram
+skinparam classAttributeIconSize 0
+
+class SensorInput {
+    - controller: TemperatureController
+    - sensorId: int
+    - running: boolean
+    --
+    + SensorInput(controller: TemperatureController, id: int)
+    + run()
+    + interrupt()
+    - readHardwareSensor(): double
+}
+
+class TemperatureController {
+    - targetMin: double
+    - targetMax: double
+    - actuator: ActuatorControl
+    - monitor: SystemMonitoring
+    --
+    + TemperatureController(actuator: ActuatorControl, monitor: SystemMonitoring)
+    + synchronized processReading(sensorId: int, temp: double)
+    + setTargetMinTemp(newTemp: double)
+    + setTargetMaxTemp(newTemp: double)
+}
+
+class ActuatorControl {
+    - status: String
+    --
+    + getCurrentActuatorControlStatus(): String
+    + synchronized activateHeating()
+    + synchronized activateCooling()
+    + synchronized setIdle()
+    + synchronized isHeating(): boolean
+    + synchronized isCooling(): boolean
+}
+
+class SystemMonitoring {
+    --
+    + logReading(id: int, min: double, max: double, temp: double, status: String)
+    - triggerAlert(sensorId: int, temp: double)
+    - triggerWarning(msg: String, id: int, temp: double)
+}
+
+' Relationships
+SensorInput "1..*" o-- "1" TemperatureController : reports to
+TemperatureController "1" *-- "1" ActuatorControl : manages
+TemperatureController "1" *-- "1" SystemMonitoring : utilizes
+
+' OCL Constraints
+note right of TemperatureController
+  **OCL Invariants**
+  context TemperatureController
+  inv: self.targetMin < self.targetMax
+  inv: self.targetMin > 0.0 and self.targetMax < 50.0
+
+  **OCL Pre/Post Conditions**
+  context TemperatureController::processReading(sensorId, temp)
+  pre: temp > -50.0 and temp < 100.0
+  post: (temp < targetMin) implies actuator.isHeating()
+  post: (temp > targetMax) implies actuator.isCooling()
+end note
+
+note top of ActuatorControl
+  **OCL Invariants**
+  context ActuatorControl
+  inv: Set{'IDLE', 'HEATING', 'COOLING'}->includes(self.status)
+end note
+
+note bottom of TemperatureController
+  context TemperatureController::setTargetMaxTemp(newTemp)
+  pre: newTemp > self.targetMin and newTemp < 40.0
+  post: self.targetMax = newTemp
+end note
+
+@enduml

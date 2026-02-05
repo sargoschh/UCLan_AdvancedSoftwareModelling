@@ -3,26 +3,37 @@ left to right direction
 skinparam packageStyle rectangle
 
 actor "Temperature Sensor" as Sensor << Hardware >>
-actor "Heating/Cooling Unit" as Actuator << Hardware >>
-actor "System Administrator" as Admin << Human >>
+actor "System Administrator" as Admin
+actor "Actuator Hardware" as Actuator << Hardware >>
 
-rectangle "Temperature Regulation System" {
+rectangle "Temperature Control System" {
     usecase "Monitor Temperature" as UC1
-    usecase "Compare Reading to Target" as UC2
-    usecase "Adjust Temperature" as UC3
-    usecase "Log System Performance" as UC4
-    usecase "Trigger Threshold Alert" as UC5
-    
-    ' Logical Dependencies
-    UC1 ..> UC2 : <<include>>
-    UC1 ..> UC4 : <<include>> 
-    UC2 ..> UC3 : <<extend>>
-    UC2 ..> UC5 : <<extend>>
+    usecase "Process Sensor Reading" as UC2
+    usecase "Adjust Actuator State" as UC3
+    usecase "Log System Status" as UC4
+    usecase "Trigger Temperature Alert" as UC5
+    usecase "Set Target Thresholds" as UC6
 }
 
-Sensor --> UC1
-UC3 --> Actuator
-UC5 -- Admin
-UC4 -- Admin
+' Relationships
+Sensor --> UC1 : Provides data
+UC1 ..> UC2 : <<include>>
+
+' The relationship you identified:
+UC2 ..> UC6 : <<include>>
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC4 ..> UC5 : <<extend>> : if temp < 0 or > 40
+
+UC3 --> Actuator : Changes state (HEAT/COOL/IDLE)
+Admin --> UC6 : Configures min/max
+
+note left of UC2
+  Logic:
+  Temp < Min -> Heat
+  Temp > Max -> Cool
+  Else -> Idle
+end note
 
 @enduml

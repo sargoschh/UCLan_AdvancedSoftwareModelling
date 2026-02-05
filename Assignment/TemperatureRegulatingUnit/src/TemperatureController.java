@@ -18,7 +18,6 @@ public class TemperatureController {
     /*@ public normal_behavior
       @   requires !Double.isNaN(temp) && temp > -50.0 && temp < 100.0;
       @   assignable \nothing;
-      @   // Postcondition: Actuator state must match the temperature logic [cite: 42, 47]
       @   ensures (temp < targetMin) ==> actuator.isHeating();
       @   ensures (temp > targetMax) ==> actuator.isCooling();
       @   ensures (temp >= targetMin && temp <= targetMax) ==>
@@ -38,7 +37,13 @@ public class TemperatureController {
             actuator.setIdle();
         }
 
-        monitor.logReading(sensorId, targetMin, targetMax, temp, actuator.getCurrentActuatorControlStatus());
+        monitor.logReading(
+                sensorId,
+                targetMin,
+                targetMax,
+                temp,
+                actuator.getCurrentActuatorControlStatus()
+        );
     }
 
     /*@ public normal_behavior

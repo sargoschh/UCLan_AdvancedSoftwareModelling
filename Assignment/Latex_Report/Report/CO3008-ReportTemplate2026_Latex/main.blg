@@ -2,47 +2,45 @@ This is BibTeX, Version 0.99d (TeX Live 2025)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: agsm.bst
-I found no \citation commands---while reading file main.aux
 Database file #1: references.bib
-You've used 0 entries,
+You've used 6 entries,
             2909 wiz_defined-function locations,
-            638 strings with 4738 characters,
-and the built_in function-call counts, 32 in all, are:
-= -- 0
-> -- 0
+            688 strings with 6385 characters,
+and the built_in function-call counts, 21897 in all, are:
+= -- 3471
+> -- 347
 < -- 0
-+ -- 0
-- -- 0
-* -- 0
-:= -- 18
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
-chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 1
++ -- 1628
+- -- 105
+* -- 1881
+:= -- 4444
+add.period$ -- 6
+call.type$ -- 6
+change.case$ -- 84
+chr.to.int$ -- 6
+cite$ -- 6
+duplicate$ -- 111
+empty$ -- 217
+format.name$ -- 131
+if$ -- 3946
 int.to.chr$ -- 5
 int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 3
-num.names$ -- 0
-pop$ -- 0
+missing$ -- 6
+newline$ -- 26
+num.names$ -- 62
+pop$ -- 26
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 90
 quote$ -- 0
-skip$ -- 1
+skip$ -- 100
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 4839
+swap$ -- 30
+text.length$ -- 84
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 0
+type$ -- 24
 warning$ -- 0
-while$ -- 0
+while$ -- 133
 width$ -- 0
-write$ -- 2
-(There was 1 error message)
+write$ -- 82

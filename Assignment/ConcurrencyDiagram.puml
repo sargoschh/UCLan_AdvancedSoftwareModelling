@@ -1,0 +1,48 @@
+@startuml
+footer All sensor threads are restricted by the 'synchronized' keyword in processReading()
+
+participant "Main Thread" as Main
+box "Active Threads" #LightGoldenRodYellow
+    participant "Sensor 1:SensorInput" as S1
+    participant "Sensor 2:SensorInput" as S2
+end box
+
+participant "Controller:TemperatureController" as TC << (C,#ADD1B2) >>
+participant "Actuator:ActuatorControl" as AC
+
+Main -> S1 : start()
+activate S1
+Main -> S2 : start()
+activate S2
+
+note over S1, S2 : Both threads run loop every 500ms
+
+group Lock Acquisition [synchronized processReading]
+    S1 -> TC : processReading(1, temp)
+    activate TC #Salmon
+    note right of TC : S1 acquires monitor lock
+    
+    S2 -> TC : processReading(2, temp)
+    activate S2 #Gray
+    note right of S2 : S2 BLOCKED (waiting for lock)
+    
+    TC -> AC : updateState()
+    activate AC
+    AC --> TC
+    deactivate AC
+    
+    TC --> S1
+    deactivate TC
+    note right of TC : S1 releases lock
+end
+
+group Next Lock Cycle
+    S2 -> TC : processReading(2, temp)
+    activate TC #Salmon
+    note right of TC : S2 now acquires lock
+    deactivate S2
+    TC --> S2
+    deactivate TC
+end
+
+@enduml
