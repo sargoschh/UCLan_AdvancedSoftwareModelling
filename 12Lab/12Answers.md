@@ -1,4 +1,4 @@
-# CO3408 – Week 11 Lab: Regular Expressions & Lexical Analysis
+# CO3408 – Week 12 Lab: Regular Expressions & Lexical Analysis
 
 ## Task 1: Identifying Tokens and Lexemes
 
